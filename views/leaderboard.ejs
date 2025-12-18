@@ -1,0 +1,130 @@
+<%- include('partials/header', { title: 'Leaderboard - SecureGuard' }) %> <%-
+include('partials/sidebar', { page: 'leaderboard' }) %>
+
+<div class="main-content">
+  <div class="container">
+    <div class="fade-in-left">
+      <h1
+        class="text-gradient-emerald"
+        style="
+          background: var(--gradient-primary);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        "
+      >
+        🏆 Cyber Defender Leaderboard
+      </h1>
+      <p style="color: #94a3b8; margin-top: 0.5rem">
+        See who the top cyber security learners are!
+      </p>
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div
+      class="glass-card fade-in-up"
+      style="margin-top: 2rem; border-left: 4px solid var(--accent-gold)"
+    >
+      <h3>Top Defenders</h3>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Username</th>
+              <th>Level</th>
+              <th>Experience Points</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardTableBody">
+            <!-- Leaderboard rows will be injected here by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+      <div
+        id="noLeaderboardDataMsg"
+        style="text-align: center; padding: 2rem; color: #64748b; display: none"
+      >
+        No users found on the leaderboard.
+      </div>
+    </div>
+
+    <!-- Error Messages -->
+    <div
+      id="messageBox"
+      style="
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+      "
+    ></div>
+  </div>
+</div>
+
+<script>
+  const leaderboardTableBody = document.getElementById("leaderboardTableBody");
+  const noLeaderboardDataMsg = document.getElementById("noLeaderboardDataMsg");
+  const messageBox = document.getElementById("messageBox");
+
+  async function fetchLeaderboard() {
+    try {
+      const response = await fetch("/api/leaderboard");
+      const data = await response.json();
+
+      if (data.success) {
+        displayLeaderboard(data.leaderboard);
+      } else {
+        showMessage(data.error || "Failed to fetch leaderboard", "error");
+      }
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+      showMessage("Error fetching leaderboard.", "error");
+    }
+  }
+
+  function displayLeaderboard(leaderboard) {
+    leaderboardTableBody.innerHTML = ""; // Clear existing rows
+
+    if (leaderboard.length === 0) {
+      noLeaderboardDataMsg.style.display = "block";
+      return;
+    }
+
+    noLeaderboardDataMsg.style.display = "none";
+    leaderboard.forEach((user, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${user.username}</td>
+        <td>${user.level}</td>
+        <td>${user.experiencePoints}</td>
+      `;
+      leaderboardTableBody.appendChild(row);
+    });
+  }
+
+  function showMessage(message, type) {
+    messageBox.textContent = message;
+    messageBox.style.display = "block";
+    if (type === "success") {
+      messageBox.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
+      messageBox.style.border = "1px solid #10b981";
+      messageBox.style.color = "#a7f3d0";
+    } else if (type === "error") {
+      messageBox.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
+      messageBox.style.border = "1px solid #ef4444";
+      messageBox.style.color = "#fca5a5";
+    }
+    setTimeout(() => {
+      messageBox.style.display = "none";
+    }, 5000);
+  }
+
+  // Initial load
+  document.addEventListener("DOMContentLoaded", () => {
+    fetchLeaderboard();
+  });
+</script>
+
+<%- include('partials/footer') %>

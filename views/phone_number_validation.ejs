@@ -1,0 +1,497 @@
+<%- include('partials/header', { title: 'Phone Validator - SecureGuard' }) %>
+<%- include('partials/sidebar', { page: 'phone-validator' }) %>
+
+<div class="main-content">
+  <div class="container">
+    <div class="fade-in-left">
+      <h1
+        class="text-gradient-emerald"
+        style="
+          background: var(--gradient-primary);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        "
+      >
+        📞 Phone Number Intelligence
+      </h1>
+      <p style="color: #94a3b8; margin-top: 0.5rem">
+        Validate phone numbers, detect VOIP/Prepaid risks, and identify
+        carriers.
+      </p>
+    </div>
+
+    <!-- 1. SEARCH INPUT -->
+    <div
+      class="glass-card fade-in-up"
+      style="margin-top: 2rem; border-left: 4px solid var(--primary-emerald)"
+    >
+      <div id="scanContainer">
+        <div class="form-group">
+          <label class="form-label" for="phoneInput">Target Phone Number</label>
+          <div style="display: flex; gap: 1rem">
+            <!-- Country Code Select -->
+            <select
+              id="countryCode"
+              class="form-input"
+              style="max-width: 120px"
+            >
+              <option value="US">🇺🇸 US (+1)</option>
+              <option value="GB">🇬🇧 GB (+44)</option>
+              <option value="CA">🇨🇦 CA (+1)</option>
+              <option value="AU">🇦🇺 AU (+61)</option>
+              <option value="DE">🇩🇪 DE (+49)</option>
+              <option value="FR">🇫🇷 FR (+33)</option>
+              <option value="IN">🇮🇳 IN (+91)</option>
+              <option value="JP">🇯🇵 JP (+81)</option>
+            </select>
+            <input
+              type="text"
+              id="phoneInput"
+              class="form-input"
+              placeholder="e.g. 555-123-4567"
+              value="800-555-0199"
+              style="flex: 1"
+            />
+          </div>
+          <p style="color: #64748b; font-size: 0.8rem; margin-top: 0.5rem">
+            Supports international formats. Do not include spaces or dashes for
+            best results.
+          </p>
+        </div>
+        <button
+          id="scanBtn"
+          class="btn btn-primary"
+          onclick="validatePhone()"
+          style="box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4)"
+        >
+          Validate Number
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. ERROR BOX -->
+    <div
+      id="errorBox"
+      style="
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid #ef4444;
+        color: #fca5a5;
+        text-align: center;
+      "
+    ></div>
+
+    <!-- 3. RESULTS AREA -->
+    <div id="visualResults" style="display: none; margin-top: 2rem">
+      <!-- A. VERDICT CARD -->
+      <div
+        class="glass-card"
+        style="
+          text-align: center;
+          padding: 2rem;
+          margin-bottom: 2rem;
+          border-left: 6px solid #10b981;
+        "
+        id="verdictCard"
+      >
+        <div
+          id="verdictIcon"
+          style="
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4));
+          "
+        >
+          ✅
+        </div>
+        <h2
+          id="verdictTitle"
+          style="
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #10b981;
+          "
+        >
+          VALID NUMBER
+        </h2>
+        <p id="verdictDesc" style="color: #94a3b8; font-size: 1.1rem">
+          This phone number is active and reachable.
+        </p>
+
+        <!-- Fraud Score Bar -->
+        <div
+          style="
+            margin-top: 1.5rem;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              color: #cbd5e1;
+              font-size: 0.85rem;
+              margin-bottom: 8px;
+              font-weight: 600;
+            "
+          >
+            <span>Fraud Risk Score</span>
+            <span><span id="scoreVal">0</span>/100</span>
+          </div>
+          <div
+            style="
+              background: rgba(255, 255, 255, 0.1);
+              height: 12px;
+              border-radius: 6px;
+              overflow: hidden;
+              position: relative;
+            "
+          >
+            <div
+              id="fraudBar"
+              style="
+                width: 0%;
+                height: 100%;
+                background: #10b981;
+                transition: width 1s ease, background-color 0.5s ease;
+                box-shadow: 0 0 15px currentColor;
+              "
+            ></div>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-top: 5px;
+              font-size: 0.75rem;
+              color: #64748b;
+            "
+          >
+            <span>Safe</span>
+            <span>Suspicious</span>
+            <span>Malicious</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- B. RISK BADGES -->
+      <div
+        id="riskContainer"
+        class="glass-card"
+        style="
+          display: none;
+          margin-bottom: 2rem;
+          border: 1px solid #f59e0b;
+          background: rgba(245, 158, 11, 0.05);
+        "
+      >
+        <h3 style="color: #fbbf24; margin-bottom: 1rem; font-size: 1.1rem">
+          ⚠️ Risk Indicators Detected
+        </h3>
+        <div
+          id="riskBadges"
+          style="display: flex; gap: 10px; flex-wrap: wrap"
+        ></div>
+      </div>
+
+      <!-- C. DETAILS GRID -->
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 1.5rem;
+        "
+      >
+        <!-- Carrier Info -->
+        <div class="glass-card" style="position: relative; overflow: hidden">
+          <div
+            style="
+              position: absolute;
+              top: -10px;
+              right: -10px;
+              font-size: 5rem;
+              opacity: 0.05;
+              transform: rotate(15deg);
+            "
+          >
+            📡
+          </div>
+          <h3
+            style="
+              color: var(--light-emerald);
+              margin-bottom: 1rem;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+              padding-bottom: 0.5rem;
+            "
+          >
+            📱 Carrier Details
+          </h3>
+          <ul
+            style="
+              list-style: none;
+              padding: 0;
+              color: #cbd5e1;
+              line-height: 2.4;
+            "
+          >
+            <li>
+              <strong>Carrier:</strong>
+              <span
+                id="resCarrier"
+                style="float: right; color: #fff; font-weight: 600"
+              ></span>
+            </li>
+            <li>
+              <strong>Line Type:</strong>
+              <span
+                id="resLineType"
+                style="float: right; text-transform: capitalize; color: #a78bfa"
+              ></span>
+            </li>
+            <li>
+              <strong>Country:</strong>
+              <span id="resCountry" style="float: right"></span>
+            </li>
+            <li>
+              <strong>Region/City:</strong>
+              <span id="resRegion" style="float: right"></span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Technical Metadata -->
+        <div class="glass-card" style="position: relative; overflow: hidden">
+          <div
+            style="
+              position: absolute;
+              top: -10px;
+              right: -10px;
+              font-size: 5rem;
+              opacity: 0.05;
+              transform: rotate(15deg);
+            "
+          >
+            ⚙️
+          </div>
+          <h3
+            style="
+              color: var(--light-emerald);
+              margin-bottom: 1rem;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+              padding-bottom: 0.5rem;
+            "
+          >
+            🔍 Technical Data
+          </h3>
+          <ul
+            style="
+              list-style: none;
+              padding: 0;
+              color: #cbd5e1;
+              line-height: 2.4;
+            "
+          >
+            <li>
+              <strong>VOIP:</strong>
+              <span id="resVOIP" style="float: right"></span>
+            </li>
+            <li>
+              <strong>Prepaid:</strong>
+              <span id="resPrepaid" style="float: right"></span>
+            </li>
+            <li>
+              <strong>Active Status:</strong>
+              <span id="resActive" style="float: right"></span>
+            </li>
+            <li>
+              <strong>Timezone:</strong>
+              <span
+                id="resTimezone"
+                style="
+                  float: right;
+                  font-family: 'JetBrains Mono', monospace;
+                  font-size: 0.9rem;
+                "
+              ></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const safeText = (txt) => (txt ? String(txt) : "N/A");
+
+  async function validatePhone() {
+    console.log("👉 Validating Phone...");
+
+    const phoneInput = document.getElementById("phoneInput").value;
+    const countryCode = document.getElementById("countryCode").value;
+    const scanBtn = document.getElementById("scanBtn");
+
+    // UI Elements
+    const resultsDiv = document.getElementById("visualResults");
+    const errorBox = document.getElementById("errorBox");
+    const riskContainer = document.getElementById("riskContainer");
+    const riskBadges = document.getElementById("riskBadges");
+
+    // Reset UI
+    resultsDiv.style.display = "none";
+    errorBox.style.display = "none";
+    riskContainer.style.display = "none";
+    riskBadges.innerHTML = "";
+
+    scanBtn.innerText = "Scanning Network...";
+    scanBtn.disabled = true;
+
+    try {
+      // NOTE: In a real deployment, replace with your backend proxy to hide API key
+      const response = await fetch("/api/phone-validation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: phoneInput, country: countryCode }),
+      });
+
+      // Check session
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("text/html")) {
+        throw new Error("Session Expired. Please refresh.");
+      }
+
+      const data = await response.json();
+      console.log("👉 API Data:", data);
+
+      if (data.success === false) {
+        throw new Error(data.message || data.error || "Validation failed");
+      }
+
+      // --- RENDER UI ---
+      resultsDiv.style.display = "block";
+
+      // 1. Verdict & Fraud Score
+      const score = data.fraud_score || 0;
+      const verdictCard = document.getElementById("verdictCard");
+      const fraudBar = document.getElementById("fraudBar");
+
+      document.getElementById("scoreVal").innerText = score;
+      fraudBar.style.width = (score === 0 ? 5 : score) + "%";
+
+      // Determine colors based on score
+      if (score >= 75 || data.valid === false) {
+        // High Risk
+        verdictCard.style.borderLeftColor = "#ef4444";
+        document.getElementById("verdictIcon").innerText =
+          data.valid === false ? "⛔" : "🛡️";
+        document.getElementById("verdictTitle").innerText =
+          data.valid === false ? "INVALID NUMBER" : "HIGH RISK DETECTED";
+        document.getElementById("verdictTitle").style.color = "#ef4444";
+        document.getElementById("verdictDesc").innerText =
+          data.valid === false
+            ? "This number is inactive or malformed."
+            : "This number is associated with suspicious activity.";
+        fraudBar.style.backgroundColor = "#ef4444";
+      } else if (score >= 40) {
+        // Medium Risk
+        verdictCard.style.borderLeftColor = "#f59e0b";
+        document.getElementById("verdictIcon").innerText = "⚠️";
+        document.getElementById("verdictTitle").innerText = "MODERATE RISK";
+        document.getElementById("verdictTitle").style.color = "#f59e0b";
+        document.getElementById("verdictDesc").innerText =
+          "This number has some risk factors (e.g., VOIP, Prepaid).";
+        fraudBar.style.backgroundColor = "#f59e0b";
+      } else {
+        // Safe
+        verdictCard.style.borderLeftColor = "#10b981";
+        document.getElementById("verdictIcon").innerText = "✅";
+        document.getElementById("verdictTitle").innerText = "VALID & SAFE";
+        document.getElementById("verdictTitle").style.color = "#10b981";
+        document.getElementById("verdictDesc").innerText =
+          "This phone number appears legitimate and active.";
+        fraudBar.style.backgroundColor = "#10b981";
+      }
+
+      // 2. Risk Badges
+      let risks = 0;
+      const addBadge = (text, type = "red") => {
+        risks++;
+        const badge = document.createElement("span");
+        badge.innerText = text;
+        badge.className = "pulse";
+        badge.style.cssText = `
+          padding: 6px 12px; 
+          border-radius: 8px; 
+          font-size: 0.85rem; 
+          font-weight: 600; 
+          border: 1px solid;
+          background: ${
+            type === "red"
+              ? "rgba(239, 68, 68, 0.15)"
+              : "rgba(245, 158, 11, 0.15)"
+          };
+          color: ${type === "red" ? "#fca5a5" : "#fcd34d"};
+          border-color: ${type === "red" ? "#ef4444" : "#f59e0b"};
+        `;
+        riskBadges.appendChild(badge);
+      };
+
+      if (data.VOIP) addBadge("📞 VOIP Detected", "orange");
+      if (data.prepaid) addBadge("💳 Prepaid Phone", "orange");
+      if (data.recent_abuse) addBadge("🚫 History of Abuse", "red");
+      if (data.risky) addBadge("⚡ High Risk Activity", "red");
+      if (data.active === false) addBadge("🔌 Inactive Line", "red");
+
+      if (risks > 0) riskContainer.style.display = "block";
+
+      // 3. Populate Details
+      document.getElementById("resCarrier").innerText = safeText(data.carrier);
+      document.getElementById("resLineType").innerText = safeText(
+        data.line_type
+      );
+      document.getElementById("resCountry").innerText = safeText(data.country);
+      document.getElementById("resRegion").innerText = `${safeText(
+        data.city
+      )}, ${safeText(data.region)}`;
+
+      // Helper for Boolean status
+      const setStatus = (id, val, isGood = true) => {
+        const el = document.getElementById(id);
+        el.innerText = val ? "Yes" : "No";
+        // If it's VOIP/Prepaid, 'Yes' is usually 'Warning' (Orange) or 'Bad' (Red) depending on context
+        // Here we keep it simple: Green = Good, Red = Warning
+        if (val) el.style.color = isGood ? "#10b981" : "#ef4444";
+        else el.style.color = isGood ? "#ef4444" : "#10b981";
+      };
+
+      // Invert logic for Risk factors (Yes = Bad)
+      setStatus("resVOIP", data.VOIP, false);
+      setStatus("resPrepaid", data.prepaid, false);
+
+      // Active Status (Yes = Good)
+      const activeEl = document.getElementById("resActive");
+      activeEl.innerText = data.active ? "Active" : "Inactive";
+      activeEl.style.color = data.active ? "#10b981" : "#94a3b8";
+
+      document.getElementById("resTimezone").innerText = safeText(
+        data.timezone
+      );
+    } catch (err) {
+      console.error("Error:", err);
+      errorBox.style.display = "block";
+      errorBox.innerText = "Error: " + err.message;
+    } finally {
+      scanBtn.innerText = "Validate Number";
+      scanBtn.disabled = false;
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

@@ -131,5 +131,5 @@ app.get("/simulate-click", (req, res) => {
 
 // --- Server Start ---
 app.listen(PORT, () => {
-  console.log(`SurakshitRahe server is running on http://localhost:${PORT}`);
+  console.log(`CredLocker server is running on http://localhost:${PORT}`);
 });

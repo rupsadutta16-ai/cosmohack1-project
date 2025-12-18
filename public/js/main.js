@@ -34,13 +34,13 @@ function showNotification(message, type = "info") {
   notification.className = `alert alert-${type}`;
   notification.textContent = message;
   notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-        animation: slideIn 0.3s ease;
-    `;
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 9999;
+          min-width: 300px;
+          animation: slideIn 0.3s ease;
+      `;
 
   document.body.appendChild(notification);
 
@@ -131,25 +131,25 @@ document.addEventListener("DOMContentLoaded", function () {
 // CSS Animation keyframes
 const style = document.createElement("style");
 style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    .mobile-open {
-        transform: translateX(0) !important;
-    }
-    
-    .badge {
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-    
-    .badge-active { background: rgba(34, 197, 94, 0.2); color: #86EFAC; }
-    .badge-pending { background: rgba(251, 191, 36, 0.2); color: #FDE68A; }
-    .badge-completed { background: rgba(139, 92, 246, 0.2); color: #C4B5FD; }
-    .badge-draft { background: rgba(156, 163, 175, 0.2); color: #D1D5DB; }
-`;
+      @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+      }
+      
+      .mobile-open {
+          transform: translateX(0) !important;
+      }
+      
+      .badge {
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+          font-size: 0.8rem;
+          font-weight: 500;
+      }
+      
+      .badge-active { background: rgba(34, 197, 94, 0.2); color: #86EFAC; }
+      .badge-pending { background: rgba(251, 191, 36, 0.2); color: #FDE68A; }
+      .badge-completed { background: rgba(139, 92, 246, 0.2); color: #C4B5FD; }
+      .badge-draft { background: rgba(156, 163, 175, 0.2); color: #D1D5DB; }
+  `;
 document.head.appendChild(style);

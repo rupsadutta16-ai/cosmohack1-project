@@ -1,0 +1,234 @@
+<%- include('partials/header', { title: 'Request Log - SecureGuard' }) %> <%-
+include('partials/sidebar', { page: 'request-log' }) %>
+
+<div class="main-content">
+  <div class="container">
+    <div class="fade-in-left">
+      <h1
+        class="text-gradient-emerald"
+        style="
+          background: var(--gradient-primary);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        "
+      >
+        📝 API Request History
+      </h1>
+      <p style="color: #94a3b8; margin-top: 0.5rem">
+        View recent IPQualityScore API lookups and their results.
+      </p>
+    </div>
+
+    <!-- 1. FILTER CONTROLS -->
+    <div
+      class="glass-card fade-in-up"
+      style="margin-top: 2rem; border-left: 4px solid var(--accent-gold)"
+    >
+      <div
+        id="filterContainer"
+        style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap"
+      >
+        <div class="form-group" style="margin-bottom: 0">
+          <label class="form-label">Request Type</label>
+          <select id="reqType" class="form-input" style="min-width: 150px">
+            <option value="proxy">IP / Proxy</option>
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+            <option value="url">URL</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0">
+          <label class="form-label">Start Date</label>
+          <input
+            type="date"
+            id="startDate"
+            class="form-input"
+            value="2023-01-01"
+          />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0">
+          <label class="form-label">End Date</label>
+          <input
+            type="date"
+            id="stopDate"
+            class="form-input"
+            value="<%= new Date().toISOString().split('T')[0] %>"
+          />
+        </div>
+
+        <button
+          id="fetchBtn"
+          class="btn btn-primary"
+          onclick="fetchRequests()"
+          style="
+            background: var(--gradient-gold);
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+          "
+        >
+          Fetch Logs
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. RESULTS TABLE -->
+    <div
+      id="resultsArea"
+      style="display: none; margin-top: 2rem"
+      class="glass-card fade-in-up"
+    >
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Query</th>
+              <th>Fraud Score</th>
+              <th>Country</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="logsTableBody">
+            <!-- Rows injected here -->
+          </tbody>
+        </table>
+      </div>
+      <div
+        id="noDataMsg"
+        style="text-align: center; padding: 2rem; color: #64748b; display: none"
+      >
+        No requests found for this period.
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div
+      id="loading"
+      style="display: none; text-align: center; margin-top: 3rem"
+    >
+      <div style="font-size: 2rem; animation: pulse 1s infinite">⏳</div>
+      <p style="color: var(--light-emerald)">Retrieving logs from IPQS...</p>
+    </div>
+
+    <!-- Error Box -->
+    <div
+      id="errorBox"
+      style="
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid #ef4444;
+        color: #fca5a5;
+        text-align: center;
+      "
+    ></div>
+  </div>
+</div>
+
+<script>
+  // Helper: Get Badge Color based on Fraud Score
+  const getScoreBadge = (score) => {
+    let color = "#10b981"; // Green
+    let bg = "rgba(16, 185, 129, 0.2)";
+
+    if (score >= 75) {
+      color = "#ef4444"; // Red
+      bg = "rgba(239, 68, 68, 0.2)";
+    } else if (score >= 40) {
+      color = "#f59e0b"; // Orange
+      bg = "rgba(245, 158, 11, 0.2)";
+    }
+
+    return `<span style="background: ${bg}; color: ${color}; padding: 4px 8px; border-radius: 4px; font-weight: bold;">${score}</span>`;
+  };
+
+  async function fetchRequests() {
+    const type = document.getElementById("reqType").value;
+    const start = document.getElementById("startDate").value;
+    const stop = document.getElementById("stopDate").value;
+
+    const loading = document.getElementById("loading");
+    const resultsArea = document.getElementById("resultsArea");
+    const tbody = document.getElementById("logsTableBody");
+    const errorBox = document.getElementById("errorBox");
+    const noData = document.getElementById("noDataMsg");
+
+    // Reset UI
+    resultsArea.style.display = "none";
+    errorBox.style.display = "none";
+    loading.style.display = "block";
+    tbody.innerHTML = "";
+
+    try {
+      const response = await fetch("/api/request-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, start_date: start, stop_date: stop }),
+      });
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("text/html"))
+        throw new Error("Session Expired");
+
+      const data = await response.json();
+      console.log("👉 Logs Data:", data);
+
+      if (data.success === false) {
+        throw new Error(data.message || data.error || "Failed to fetch logs");
+      }
+
+      // Check for results
+      // NOTE: IPQS API structure for lists: { success: true, requests: [ ... ] }
+      const requests = data.requests || [];
+
+      if (requests.length === 0) {
+        resultsArea.style.display = "block";
+        noData.style.display = "block";
+        return;
+      }
+
+      // Populate Table
+      noData.style.display = "none";
+      requests.forEach((req) => {
+        const row = document.createElement("tr");
+
+        // Safety checks for missing fields
+        const date = req.date || "N/A";
+        const query = req.ip || req.email || req.url || req.phone || "Unknown"; // Dynamic based on type
+        const score = req.fraud_score !== undefined ? req.fraud_score : 0;
+        const country = req.country_code || "N/A";
+
+        // Determine simple result text
+        let resultText = "Safe";
+        if (score >= 75) resultText = "High Risk";
+        else if (score >= 40) resultText = "Suspicious";
+
+        row.innerHTML = `
+          <td style="color: #cbd5e1; font-size: 0.9rem;">${date}</td>
+          <td style="font-family: 'JetBrains Mono', monospace; color: #fff;">${query}</td>
+          <td>${getScoreBadge(score)}</td>
+          <td>${country === "N/A" ? "-" : `Using ${country}`}</td>
+          <td style="color: ${
+            score >= 75 ? "#ef4444" : "#10b981"
+          }">${resultText}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      resultsArea.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      errorBox.style.display = "block";
+      errorBox.innerText = `Error: ${err.message}`;
+    } finally {
+      loading.style.display = "none";
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>

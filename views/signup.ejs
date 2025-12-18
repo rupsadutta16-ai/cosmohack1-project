@@ -10,19 +10,19 @@
   <body>
     <div class="login-container">
       <div class="login-card fade-in-up">
-        <div style="text-align: center; margin-bottom: 3rem">
+        <div style="text-align: center; margin-bottom: 2.5rem">
           <div
             style="
               font-size: 4rem;
-              margin-bottom: 1rem;
-              color: var(--primary-emerald);
+              margin-bottom: 0.5rem;
+              filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
             "
           >
             ⚡
           </div>
           <h1 class="login-title">Create Account</h1>
-          <p style="color: #64748b; font-size: 1rem; font-weight: 500">
-            Join SecureGuard Platform
+          <p style="color: #94a3b8; font-size: 1rem; font-weight: 500">
+            Join the SecureGuard Platform
           </p>
         </div>
 
@@ -107,13 +107,13 @@
             <div
               style="
                 height: 1px;
-                background: rgba(51, 65, 85, 0.3);
+                background: rgba(148, 163, 184, 0.2);
                 margin: 1rem 0;
               "
             ></div>
             <span
               style="
-                background: var(--dark-slate);
+                background: var(--medium-slate);
                 padding: 0 1rem;
                 color: #64748b;
                 font-size: 0.9rem;
@@ -121,6 +121,7 @@
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
+                border-radius: 4px;
               "
               >or</span
             >
@@ -153,57 +154,27 @@
           <style>
             .google-showcase-btn {
               width: 100%;
-              background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+              background: rgba(255, 255, 255, 0.9);
               color: #3c4043;
-              border: 2px solid #dadce0;
+              border: 1px solid #dadce0;
               display: flex;
               align-items: center;
               justify-content: center;
               gap: 12px;
-              padding: 14px 24px;
-              border-radius: 12px;
+              padding: 12px 24px;
+              border-radius: 8px;
               font-weight: 600;
-              font-size: 16px;
+              font-size: 15px;
               text-decoration: none;
               transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
               position: relative;
               overflow: hidden;
             }
-
-            .google-showcase-btn::before {
-              content: "";
-              position: absolute;
-              top: 0;
-              left: -100%;
-              width: 100%;
-              height: 100%;
-              background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(66, 133, 244, 0.1),
-                transparent
-              );
-              transition: left 0.5s ease;
-            }
-
-            .google-showcase-btn:hover::before {
-              left: 100%;
-            }
-
             .google-showcase-btn:hover {
               transform: translateY(-2px);
-              box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-              border-color: #4285f4;
-              background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
-            }
-
-            .google-icon {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 20px;
-              height: 20px;
+              box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+              background: #ffffff;
             }
           </style>
 
@@ -212,7 +183,7 @@
               text-align: center;
               margin-top: 2rem;
               padding-top: 2rem;
-              border-top: 1px solid rgba(51, 65, 85, 0.3);
+              border-top: 1px solid rgba(148, 163, 184, 0.2);
             "
           >
             <p style="color: #64748b; font-size: 0.9rem">
@@ -239,26 +210,22 @@
         .addEventListener("input", function () {
           const password = document.getElementById("password").value;
           const confirmPassword = this.value;
-
           if (password !== confirmPassword) {
             this.style.borderColor = "#EF4444";
           } else {
             this.style.borderColor = "var(--primary-emerald)";
           }
         });
-
       // Form validation
       document.querySelector("form").addEventListener("submit", function (e) {
         const password = document.getElementById("password").value;
         const confirmPassword =
           document.getElementById("confirmPassword").value;
-
         if (password !== confirmPassword) {
           e.preventDefault();
           alert("Passwords do not match!");
           return false;
         }
-
         if (password.length < 6) {
           e.preventDefault();
           alert("Password must be at least 6 characters long!");

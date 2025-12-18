@@ -1,4 +1,4 @@
-<%- include('partials/header', { title: 'Users - PhishGuard' }) %> <%-
+<%- include('partials/header', { title: 'Users - SecureGuard' }) %> <%-
 include('partials/sidebar', { page: 'users' }) %>
 
 <div class="main-content">
@@ -12,10 +12,35 @@ include('partials/sidebar', { page: 'users' }) %>
       "
     >
       <div style="display: flex; align-items: center">
-        <div style="font-size: 2rem; margin-right: 1rem">👥</div>
-        <h1 style="margin: 0">User Management</h1>
+        <div
+          style="
+            font-size: 2rem;
+            margin-right: 1rem;
+            filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
+          "
+        >
+          👥
+        </div>
+        <h1
+          style="
+            margin: 0;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          "
+        >
+          User Management
+        </h1>
       </div>
-      <a href="/users/new" class="btn btn-primary pulse">+ Add User</a>
+      <a
+        href="/users/new"
+        class="btn btn-primary pulse"
+        style="
+          background: var(--gradient-gold);
+          box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+        "
+        >+ Add User</a
+      >
     </div>
 
     <div class="glass-card sparkle">
@@ -33,21 +58,47 @@ include('partials/sidebar', { page: 'users' }) %>
           <tbody>
             <% if (users && users.length > 0) { %> <% users.forEach(user => { %>
             <tr>
-              <td><%= user.firstName %> <%= user.lastName %></td>
-              <td><%= user.email %></td>
-              <td><%= user.group || 'No Group' %></td>
-              <td><span class="badge badge-active pulse">Active</span></td>
+              <td style="font-weight: 500; color: white">
+                <%= user.firstName %> <%= user.lastName %>
+              </td>
+              <td style="color: #cbd5e1"><%= user.email %></td>
+              <td>
+                <span
+                  style="
+                    background: rgba(255, 255, 255, 0.05);
+                    padding: 2px 8px;
+                    border-radius: 4px;
+                    font-size: 0.85rem;
+                  "
+                  ><%= user.group || 'No Group' %></span
+                >
+              </td>
+              <td>
+                <span
+                  class="badge badge-active pulse"
+                  style="
+                    background: rgba(16, 185, 129, 0.2);
+                    color: #34d399;
+                    border: 1px solid rgba(16, 185, 129, 0.4);
+                  "
+                  >Active</span
+                >
+              </td>
               <td>
                 <a
                   href="/users/<%= user.id %>/edit"
                   class="btn btn-secondary"
-                  style="padding: 0.5rem"
+                  style="padding: 0.4rem 0.8rem; font-size: 0.8rem"
                   >Edit</a
                 >
                 <button
                   onclick="deleteUser(<%= user.id %>)"
                   class="btn btn-danger"
-                  style="padding: 0.5rem"
+                  style="
+                    padding: 0.4rem 0.8rem;
+                    font-size: 0.8rem;
+                    margin-left: 0.5rem;
+                  "
                 >
                   Delete
                 </button>
@@ -55,8 +106,14 @@ include('partials/sidebar', { page: 'users' }) %>
             </tr>
             <% }) %> <% } else { %>
             <tr>
-              <td colspan="5" style="text-align: center; color: #aaa">
-                No users found. <a href="/users/new">Add your first user</a>
+              <td
+                colspan="5"
+                style="text-align: center; color: #94a3b8; padding: 2rem"
+              >
+                No users found.
+                <a href="/users/new" style="color: var(--accent-gold)"
+                  >Add your first user</a
+                >
               </td>
             </tr>
             <% } %>
@@ -72,9 +129,7 @@ include('partials/sidebar', { page: 'users' }) %>
     if (confirm("Are you sure you want to delete this user?")) {
       fetch(`/users/${userId}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       }).then((response) => {
         if (response.ok) {
           location.reload();
