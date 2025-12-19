@@ -610,7 +610,7 @@ body::before {
 }
 
 .sidebar-toggle.active span:nth-child(1) {
-  transform: rotate(0deg) translate(0,0);
+  transform: rotate(0deg) translate(0, 0);
 }
 
 .sidebar-toggle.active span:nth-child(2) {
@@ -618,7 +618,7 @@ body::before {
 }
 
 .sidebar-toggle.active span:nth-child(3) {
-  transform: rotate(0deg) translate(0,0);
+  transform: rotate(0deg) translate(0, 0);
 }
 
 /* Sidebar */
@@ -640,7 +640,6 @@ body::before {
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
   z-index: 999;
-  
 }
 
 .sidebar.collapsed {
@@ -1082,10 +1081,6 @@ h3,
   min-width: 800px; /* ensures table is wide enough for all columns */
 }
 
-
-
-
-
 .task-table tr:nth-child(even) {
   background: rgba(255, 255, 255, 0.05);
 }
@@ -1098,4 +1093,202 @@ h3,
 
 .btn-sm {
   width: 8rem;
+}
+
+To fix the styling and make it cleaner (removing the messy inline styles from your EJS), you should add these specific classes to the bottom of your CSS file.
+
+1. Update public/css/style.css
+Add this code to the very end of your CSS file. It handles the video aspect ratio, the "mini-task" box, the checkbox, and the success message for both Light and Dark themes.
+
+CSS
+
+/* =========================================
+   Gamification & Task Page Specific Styles
+   ========================================= */
+
+/* Back Button Link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #94a3b8;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  color: var(--light-emerald);
+  transform: translateX(-4px);
+}
+
+[data-theme="light"] .back-link {
+  color: #64748b;
+}
+
+[data-theme="light"] .back-link:hover {
+  color: var(--primary-emerald);
+}
+
+/* Responsive Video Container (16:9) */
+.video-responsive {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.video-responsive iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Info/Mini-Task Box */
+.info-box {
+  background: rgba(30, 41, 59, 0.5);
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.info-box h4 {
+  color: var(--light-gold);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-box p {
+  font-style: italic;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+[data-theme="light"] .info-box {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .info-box h4 {
+  color: #d97706; /* Darker gold for light mode */
+}
+
+[data-theme="light"] .info-box p {
+  color: #475569;
+}
+
+/* Checkbox Container */
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.checkbox-wrapper:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary-emerald);
+}
+
+.checkbox-wrapper label {
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: 0.95rem;
+  user-select: none;
+  flex: 1;
+}
+
+[data-theme="light"] .checkbox-wrapper {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .checkbox-wrapper:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .checkbox-wrapper label {
+  color: #334155;
+}
+
+/* Success/Completed State */
+.success-message {
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-message .icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  animation: pulse 2s infinite;
+}
+
+.success-message h4 {
+  color: var(--light-emerald);
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.success-message p {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+[data-theme="light"] .success-message {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+}
+
+[data-theme="light"] .success-message h4 {
+  color: #059669;
+}
+
+[data-theme="light"] .success-message p {
+  color: #475569;
+}
+
+/* Documentation Image */
+.doc-image {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.doc-image:hover {
+  transform: scale(1.02);
+}
+
+[data-theme="light"] .doc-image {
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
