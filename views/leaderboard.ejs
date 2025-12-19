@@ -74,8 +74,6 @@ include('partials/sidebar', { page: 'leaderboard' }) %>
 
       if (data.success) {
         displayLeaderboard(data.leaderboard);
-        
-        
       } else {
         showMessage(data.error || "Failed to fetch leaderboard", "error");
       }

@@ -19,7 +19,9 @@
       </p>
     </div>
 
-    <!-- User Progress Section -->
+    <% const nextLevelXP = user.level * 100; const progressPercent =
+    Math.min((user.experiencePoints / nextLevelXP) * 100, 100); %>
+
     <div
       class="glass-card fade-in-up"
       style="margin-top: 2rem; border-left: 4px solid var(--accent-purple)"
@@ -31,13 +33,15 @@
         <span style="font-size: 2.5rem">⭐</span>
         <div>
           <p style="font-size: 1.2rem; margin: 0; color: #e2e8f0">
-            Level <span id="userLevel">1</span>
+            Level <span><%= user.level %></span>
           </p>
           <p style="font-size: 0.9rem; margin: 0; color: #94a3b8">
-            <span id="userXP">0</span> / <span id="nextLevelXP">100</span> XP
+            <span><%= user.experiencePoints %></span> /
+            <span><%= nextLevelXP %></span> XP
           </p>
         </div>
       </div>
+
       <div
         style="
           width: 100%;
@@ -48,11 +52,10 @@
         "
       >
         <div
-          id="progressBar"
           style="
             background-color: var(--accent-purple);
             height: 100%;
-            width: 0%;
+            width: <%= progressPercent %>%;
             border-radius: 9999px;
             transition: width 0.5s ease-in-out;
           "
@@ -60,307 +63,95 @@
       </div>
     </div>
 
-    <!-- Learning Tasks Section -->
-  <div class="glass-card fade-in-up" style="margin-top: 2rem">
-  <h3>Available Learning Tasks</h3>
+    <div class="glass-card fade-in-up" style="margin-top: 2rem">
+      <h3>Available Learning Tasks</h3>
 
-  <!-- Task Table -->
-  <div class="table-container" style="margin-top: 1rem; overflow-x:auto;">
-    <table class="table task-table">
-      <thead>
-        <tr>
-          <th>Task Title</th>
-          <th>Description</th>
-          <th>Resources</th> <!-- Merged column -->
-          <th>Mini-Task</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="tasksList">
-        <!-- JS will populate rows here -->
-      </tbody>
-    </table>
-  </div>
+      <div class="table-container" style="margin-top: 1rem; overflow-x: auto">
+        <table class="table task-table">
+          <thead>
+            <tr>
+              <th>Task Title</th>
+              <th>Description</th>
+              <th>XP Reward</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (tasks && tasks.length > 0) { %> <%
+            tasks.forEach(function(task) { %> <% const isCompleted =
+            user.completedTasks &&
+            user.completedTasks.includes(task.id.toString()); %>
 
-  <!-- Error and Success Messages -->
-  <div
-    id="messageBox"
-    style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; text-align: center;"
-  ></div>
-</div>
+            <tr>
+              <td style="font-weight: 600; color: #fff"><%= task.title %></td>
+              <td style="color: #cbd5e1"><%= task.description %></td>
+              <td style="color: var(--accent-gold)">
+                +<%= task.experienceReward || 10 %> XP
+              </td>
 
-<!-- Task Detail Modal remains same -->
-<div id="taskDetailModal" class="modal">
-  <div class="modal-content glass-card">
-    <span class="close-button">&times;</span>
-    <h3 id="modalTaskTitle"></h3>
-    <p id="modalTaskDescription" style="color: #94a3b8; margin-bottom: 1rem"></p>
+              <td>
+                <% if (isCompleted) { %>
+                <span
+                  class="badge"
+                  style="
+                    background: rgba(16, 185, 129, 0.2);
+                    color: #6ee7b7;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 0.85rem;
+                  "
+                >
+                  Completed
+                </span>
+                <% } else { %>
+                <span
+                  class="badge"
+                  style="
+                    background: rgba(245, 158, 11, 0.2);
+                    color: #fcd34d;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 0.85rem;
+                  "
+                >
+                  Pending
+                </span>
+                <% } %>
+              </td>
 
-    <div class="modal-section">
-      <h4>Documentation</h4>
-      <p id="modalTaskDocumentation"></p>
-    </div>
+              <td>
+                <a
+                  href="/gamification/<%= task.id %>"
+                  class="btn btn-primary"
+                  style="
+                    text-decoration: none;
+                    display: inline-block;
+                    font-size: 0.9rem;
+                    padding: 0.5rem 1rem;
+                  "
+                >
+                  <%= isCompleted ? 'Review' : 'Start Learning' %>
+                </a>
+              </td>
+            </tr>
 
-    <div class="modal-section" id="modalVideoSection" style="display: none">
-      <h4>Video Explanation</h4>
-      <div class="video-container">
-        <iframe id="modalTaskVideo" frameborder="0" allowfullscreen></iframe>
+            <% }); %> <% } else { %>
+
+            <tr>
+              <td
+                colspan="5"
+                style="text-align: center; padding: 2rem; color: #94a3b8"
+              >
+                No learning tasks available at the moment.
+              </td>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <div class="modal-section" id="modalImageSection" style="display: none">
-      <h4>Infographic / Image</h4>
-      <img
-        id="modalTaskImage"
-        src=""
-        alt="Task Image"
-        style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 0.5rem;"
-      />
-    </div>
-
-      <div class="modal-section" id="modalMiniTaskSection">
-      <h4>Mini-Task</h4>
-      <p
-        id="modalMiniTaskDescription"
-        style="font-style: italic; color: var(--light-gold)"
-      ></p>
-      <button
-        id="miniTaskCompleteBtn"
-        class="btn btn-secondary"
-        style="margin-top: 1rem"
-      >
-        Mark as Understood
-      </button>
-    </div>
-
-    <button
-      id="modalCompleteTaskBtn"
-      class="btn btn-primary"
-      style="margin-top: 2rem; width: 100%"
-      disabled
-    >
-      Complete Task
-    </button>
   </div>
 </div>
-
-<script>
-  const userLevelElement = document.getElementById("userLevel");
-  const userXPElement = document.getElementById("userXP");
-  const nextLevelXPElement = document.getElementById("nextLevelXP");
-  const progressBar = document.getElementById("progressBar");
-  const tasksList = document.getElementById("tasksList");
-  const messageBox = document.getElementById("messageBox");
-
-  const taskDetailModal = document.getElementById("taskDetailModal");
-  const closeButton = document.querySelector(".close-button");
-  const modalTaskTitle = document.getElementById("modalTaskTitle");
-  const modalTaskDescription = document.getElementById("modalTaskDescription");
-  const modalTaskDocumentation = document.getElementById(
-    "modalTaskDocumentation"
-  );
-  const modalVideoSection = document.getElementById("modalVideoSection");
-  const modalTaskVideo = document.getElementById("modalTaskVideo");
-  const modalImageSection = document.getElementById("modalImageSection");
-  const modalTaskImage = document.getElementById("modalTaskImage");
-  const modalMiniTaskSection = document.getElementById("modalMiniTaskSection");
-  const modalMiniTaskDescription = document.getElementById(
-    "modalMiniTaskDescription"
-  );
-  const miniTaskCompleteBtn = document.getElementById("miniTaskCompleteBtn");
-  const modalCompleteTaskBtn = document.getElementById("modalCompleteTaskBtn");
-
-  let userProgress = {};
-  let allTasks = [];
-  let currentTask = null; // To keep track of the task being viewed
-
-  async function fetchProgress() {
-    try {
-      const response = await fetch("/api/gamification/progress");
-      const data = await response.json();
-
-      if (data.success) {
-        userProgress = data;
-        updateProgressUI();
-      } else {
-        showMessage(data.error || "Failed to fetch progress", "error");
-      }
-    } catch (error) {
-      console.error("Error fetching progress:", error);
-      showMessage("Error fetching progress.", "error");
-    }
-  }
-
-  async function fetchTasks() {
-    try {
-      const response = await fetch("/api/gamification/tasks");
-      const data = await response.json();
-
-      if (data.success) {
-        allTasks = data.tasks;
-        displayTasks();
-      } else {
-        showMessage(data.error || "Failed to fetch tasks", "error");
-      }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      showMessage("Error fetching tasks.", "error");
-    }
-  }
-
-  function updateProgressUI() {
-    const { level, experiencePoints, completedTasks } = userProgress;
-    const experienceToNextLevel = level * 100; // Example: 100, 200, 300, etc.
-
-    userLevelElement.textContent = level;
-    userXPElement.textContent = experiencePoints;
-    nextLevelXPElement.textContent = experienceToNextLevel;
-
-    const progressPercentage = (experiencePoints / experienceToNextLevel) * 100;
-    progressBar.style.width = `${progressPercentage}%`;
-    displayTasks(); // Re-display tasks to update completion status
-  }
-
- function displayTasks() {
-    tasksList.innerHTML = ""; // Clear previous tasks
-
-    if (allTasks.length === 0) {
-      tasksList.innerHTML =
-        '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No learning tasks available.</td></tr>';
-      return;
-    }
-
-    allTasks.forEach((task) => {
-      const isCompleted = userProgress.completedTasks.includes(task.id);
-
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>${task.title}</td>
-        <td>${task.description}</td>
-        <td>
-          ${task.documentation ? `<a href="${task.documentation}" target="_blank" class="btn btn-sm btn-secondary" style="display:block; margin-bottom:0.3rem; font-size: 0.75rem;height:2rem; display:flex; align-items:center; justify-content: center; ">View Doc</a>` : ''}
-          ${task.videoUrl ? `<button class="btn btn-sm btn-secondary" style="display:block; margin-bottom:0.3rem; font-size: 0.75rem; height:2rem; display:flex; align-items:center; justify-content: center;" onclick="viewTask('${task.id}')">Watch Video</button>` : ''}
-          ${task.imageUrl ? `<button class="btn btn-sm btn-secondary" style="display:block; font-size: 0.75rem; height:2rem; display:flex; align-items:center; justify-content: center;" onclick="viewTask('${task.id}')">View Image</button>` : ''}
-        </td>
-        <td>${task.miniTaskDescription || '-'}</td>
-        <td>
-          ${isCompleted 
-            ? '<span class="task-completed-badge">✅ Completed</span>' 
-            : `<button class="btn  btn-primary" onclick="viewTask('${task.id}')">View Learning</button>`}
-        </td>
-      `;
-
-      tasksList.appendChild(row);
-    });
-  }
-
-
-  function viewTask(taskId) {
-    currentTask = allTasks.find((task) => task.id === taskId);
-    if (!currentTask) return;
-
-    modalTaskTitle.textContent = currentTask.title;
-    modalTaskDescription.textContent = currentTask.description;
-    modalTaskDocumentation.textContent = currentTask.documentation;
-
-    // Reset video and image sections
-    modalVideoSection.style.display = "none";
-    modalTaskVideo.src = "";
-    modalImageSection.style.display = "none";
-    modalTaskImage.src = "";
-
-    if (currentTask.videoUrl) {
-      modalVideoSection.style.display = "block";
-      modalTaskVideo.src = currentTask.videoUrl;
-    }
-    if (currentTask.imageUrl) {
-      modalImageSection.style.display = "block";
-      modalTaskImage.src = currentTask.imageUrl;
-    }
-
-    modalMiniTaskDescription.textContent = currentTask.miniTaskDescription;
-    miniTaskCompleteBtn.disabled = false; // Enable mini-task button initially
-    modalCompleteTaskBtn.disabled = true; // Disable final complete button initially
-    taskDetailModal.style.display = "block";
-  }
-
-  miniTaskCompleteBtn.addEventListener("click", () => {
-    if (currentTask) {
-      modalCompleteTaskBtn.disabled = false; // Enable the final complete button
-      miniTaskCompleteBtn.disabled = true; // Disable mini-task button after completion
-      showMessage(
-        "Mini-task completed! You can now complete the main task.",
-        "success"
-      );
-    }
-  });
-
-  modalCompleteTaskBtn.addEventListener("click", async () => {
-    if (currentTask) {
-      await completeTask(currentTask.id);
-      closeModal();
-    }
-  });
-
-  async function completeTask(taskId) {
-    try {
-      const response = await fetch("/api/gamification/complete-task", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ taskId }),
-      });
-      const data = await response.json();
-
-      if (data.success) {
-        showMessage(data.message, "success");
-        // Refresh progress and tasks
-        await fetchProgress();
-        await fetchTasks();
-      } else {
-        showMessage(data.error || "Failed to complete task", "error");
-      }
-    } catch (error) {
-      console.error("Error completing task:", error);
-      showMessage("Error completing task.", "error");
-    }
-  }
-
-  function showMessage(message, type) {
-    messageBox.textContent = message;
-    messageBox.style.display = "block";
-    if (type === "success") {
-      messageBox.style.backgroundColor = "rgba(16, 185, 129, 0.2)";
-      messageBox.style.border = "1px solid #10b981";
-      messageBox.style.color = "#a7f3d0";
-    } else if (type === "error") {
-      messageBox.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
-      messageBox.style.border = "1px solid #ef4444";
-      messageBox.style.color = "#fca5a5";
-    }
-    setTimeout(() => {
-      messageBox.style.display = "none";
-    }, 5000);
-  }
-
-  // Modal close functionality
-  closeButton.addEventListener("click", closeModal);
-  window.addEventListener("click", (event) => {
-    if (event.target === taskDetailModal) {
-      closeModal();
-    }
-  });
-
-  function closeModal() {
-    taskDetailModal.style.display = "none";
-    modalTaskVideo.src = ""; // Stop video when modal closes
-  }
-
-  // Initial load
-  document.addEventListener("DOMContentLoaded", () => {
-    fetchProgress();
-    fetchTasks();
-  });
-</script>
 
 <%- include('partials/footer') %>

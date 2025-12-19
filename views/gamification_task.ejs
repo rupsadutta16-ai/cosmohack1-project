@@ -1,0 +1,104 @@
+<%- include('partials/header', { title: 'Gamified Learning - SecureGuard' }) %>
+<%- include('partials/sidebar', { page: 'gamification' }) %>
+
+<div
+  class="glass-card"
+  style="margin: 0; border-top: 4px solid var(--accent-gold)"
+>
+  <h3 style="margin-bottom: 1rem">Action Item</h3>
+
+  <div
+    style="
+      background: rgba(30, 41, 59, 0.5);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1.5rem;
+    "
+  >
+    <h4
+      style="
+        color: var(--light-gold);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+      "
+    >
+      Mini-Task
+    </h4>
+    <p style="font-style: italic; color: #cbd5e1; font-size: 0.95rem">
+      <%= task.miniTaskDescription || "Read and understand the material." %>
+    </p>
+  </div>
+
+  <% let isCompleted = false; if (user && user.completedTasks) { if
+  (user.completedTasks.includes(task.id) ||
+  user.completedTasks.includes(task.id.toString())) { isCompleted = true; } } %>
+  <% if (isCompleted) { %>
+  <div
+    style="
+      text-align: center;
+      padding: 1rem;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    "
+  >
+    <span style="font-size: 1.5rem">&#127881;</span>
+    <p
+      style="color: var(--light-emerald); font-weight: 600; margin-top: 0.5rem"
+    >
+      Task Completed!
+    </p>
+    <p style="font-size: 0.8rem; color: #94a3b8">
+      You have earned XP for this.
+    </p>
+  </div>
+
+  <% } else { %>
+  <form action="/gamification/complete-task" method="POST">
+    <input type="hidden" name="taskId" value="<%= task.id %>" />
+
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+      "
+    >
+      <input
+        type="checkbox"
+        id="confirmTask"
+        required
+        style="
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+          accent-color: var(--primary-emerald);
+        "
+      />
+      <label
+        for="confirmTask"
+        style="
+          color: #cbd5e1;
+          cursor: pointer;
+          font-size: 0.95rem;
+          user-select: none;
+        "
+      >
+        I have completed the Mini-Task
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%">
+      Claim Reward & Complete
+    </button>
+  </form>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>
